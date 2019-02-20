@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matrix solver</title>
+</head>
+<body>
+  <script>
+  
+  class Matrix {
+    constructor(m=false, n=false, data=false) {
+      if(data) {
+        this.data = data  // validate coloumn lengths?
+        this.m = data.length
+        this.n = data[0].length
+      } else {
+        this.data = new Array(n)
+        for(i in data) {
+          data[i] = new Array(m)
+        }
+        this.m = m
+        this.n = n
+      }
+    }
+    swapRows = (a,b) => {
+      let temp = this.data[a]
+      data[a] = data[b]
+      data[b] = temp
+    }
+    swapCols = (a,b) => {
+      if(a == this.data.length-1 || b == this.data.length-1) {
+        throw new Error("cannot swap constants row")
+      }
+      for(let i in this.data) {
+        let myData = this.data[i]
+        let temp = myData[a]
+        myData[a] = myData[b]
+        myData[b] = temp
+      }
+    }
+    scaleBy = (row, alpha) => {
+      if(alpha == 0) {
+        throw new Error("Losing data")
+      }
+      for(let i in this.data[row]) {
+        this.data[row][i] *= alpha
+      }
+    }
+    addTo = (source, alpha, target) => {
+      if((alpha == 0) || (source == target && alpha == -1)) {
+        throw new Error("Losing data")
+      }
+      for(let i in this.data) {
+        this.data[target][i] += alpha * this.data[source][i]
+      }
+    }
+    toRREF = () => {
+      // for each row
+      // s is the row and col of the current element that should be turned in a leading one with only zeros in the rest of its coloumn
+      if(this.m>this.n) {
+        throw new Error("too many rows??") // TODO: make too many rows safe -> deal with duplicate rows...
+      }
+      for(let s=0; s<this.m; s++) {
+        // get the current col to be nonzero by swapping cols to the right
+        for(let col=s; this.data[s][s] === 0; col++) {
+          this.swapCols(s,col)  // the first swap is pointless... swapCols(0,0)
+          if(col+1 >= this.n-1) {
+            if(this.data[s][this.n-1] === 0) {
+              // the current row is all zeros
+              // TODO: goto swapCols "for(let col..." for the same row (repeat this row)
+            } else {
+              // all coefficients are zero, but the constant isn't
+              throw new Error("there is no solution to this matrix")
+            }
+          }
+        }
+        // the current row should now be "in REF"
+        // divide current col to make leading nonzero a one
+        this.scaleBy(s,1/this.data[s][s])
+        // subtract current row from all others to make all other elements in col of the current element zero
+        for(let row in this.data) {
+          if(row != s) {  // why is row a string?
+            this.addTo(s,-this.data[row][s],row)
+          }
+        }
+      }
+    }
+    deleteAllZeroCols = () => {
+      for(let col=0; col<this.n; col ++) {
+        let hasNonZero = false
+        for(let row in this.data) {
+          if(this.data[row][col] !== 0) {
+            hasNonZero = true
+            break
+          }
+        }
+        if(!hasNonZero) {
+          // remove coloumn
+          for(let row in this.data) {
+            this.data.splice(col, 1)
+          }
+        }
+      }
+    }
+    deleteAllZeroRows = () => {
+      for(let row in this.data) {
+        let hasNonZero = false
+        for(let col in this.data[row]) {
+          if(this.data[row][col] != 0) {
+            hasNonZero = true
+            break
+          }
+        }
+        if(!hasNonZero) {
+          // remove row
+          this.data.splice(row, 1)
+        }
+      }
+    }
+  }
+
+  parseString = (str) => {
+    let strs = []
+    // first divide into equations
+    let index = str.search(";")
+    while(index !== -1) {
+      strs.push(str.slice(0,index))
+      str = str.slice(index+1)  // +1 for the char ';'
+      index = str.search(";")
+    }
+    //return strs
+    
+    // find variable names
+    let varNames = []
+    // currently assuming that the string is a bunch of expressions (all equal to zero) seperated by semi-colons
+    for(let i in strs) {
+      let myStr = strs[i]
+      for(let j=0; j<myStr.length; j++) {
+        let currentVarName = []
+        let myASCII = myStr.charCodeAt(j)
+        while((65<=myASCII && myASCII<=90) || (97<=myASCII && myASCII<=122)) {
+          currentVarName.push(myStr[j])
+          j++
+          myASCII = myStr.charCodeAt(j)
+        }
+        varNames.push(currentVarName)
+      }
+    }
+    //return varNames
+
+    // remove duplicate variable names
+    oldVarNames = varNames
+    varNames = []
+    for(let nameIndex in oldVarNames) {
+      let name = oldVarNames[nameIndex]
+      // check if name is already in varnames
+      isDuplicate = false
+      for(existingNameIndex in varNames) {
+        let existingName = varNames[existingNameIndex]
+        if(name.length === existingName.length) {
+          let mismatchFound = false
+          for(let i in name) {
+            if(name[i] !== existingName[i]) {
+              mismatchFound = true
+              break
+            }
+          }
+          if(!mismatchFound) {
+            isDuplicate = true
+            break
+          }
+        }
+      }
+      if(!isDuplicate) {
+        varNames.push(name)
+      }
+    }
+    return varNames
+
+    // create matrix with dimensions
+    let matrix = new Matrix(strs.length, varNames.length+1)
+    console.log("hold debugger")
+
+    for(let str in strs.values()) {
+      let myNumBuffer = []
+      for(let i in str) {
+        let char = str[i]
+        let charCode = char.charCodeAt(0)
+        if(48 <= charCode && charCode <= 57) {
+          myNumBuffer.push(char)
+        } else if((97 <= charCode && charCdoe <= 122) || (65 <= charCode && charCode <= 90)) {
+          for(let myVar in varNames.values()) {
+            let mismatchFound = false
+            for(let j in myVar) {
+              if(str[i] !== myVar[j]) {
+                mismatchFound = true
+                break
+              }
+            }
+            if(!mismatchFound) {
+              // we found a variable
+            }
+          }
+        }
+        
+      }
+    }
+    // for each equation
+    //   find each variable and identify its coefficient
+    //     add value to matrix
+
+    //matrix.toRREF
+  }
+
+
+  let matrix = new Matrix(2,2)
+  console.log(matrix)
+  matrix = new Matrix(3,7,data=[[1,2,7,87,0,2,34],
+                                [3,4,4,23,0,0,23],
+                                [1,0,0,23,5,4,3],
+                                [2,0,3,0,34,2,-7.65]])
+  //matrix.toRREF()
+  parseString("as l ;df ;lk sad;l ajsd;f")
+  console.log("debugging")
+  
+  </script>
+  
+</body>
+</html>
