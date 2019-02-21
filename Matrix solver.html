@@ -165,7 +165,7 @@
         for(let i in str) {
           let char = str[i]
           let charCode = char.charCodeAt(0)
-          if(48 <= charCode && charCode <= 57) {
+          if((45 <= charCode && charCode <= 57) && charCode !== 47) {
             // the char is a number
             if(bufferType === "letter") {
               throw new Error("num right after letter")
@@ -227,10 +227,10 @@
     }
   }
 
-// TODO: add "-" and "=" signs
+// TODO: add "=" signs
 
-  Matrix.parseString("3x 7y 18z 3; 3x 4y 125z 2; 5x 7y 34z 3").toRREF().interpretMatrix()
-  console.log("done debugging")
+  Matrix.parseString("3x -7y 1.8z 3; -3x 4y 125z 2; 5x 7y 34z 3").toRREF().interpretMatrix()
+  console.log("done debugging") 
   
   </script>
   
