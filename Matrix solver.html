@@ -162,6 +162,7 @@
         let buffer = [] // holds the latest characters
         let bufferType = ""
         let coefficient = 0
+        let sign = 1 // holds 1 or -1
         for(let i in str) {
           let char = str[i]
           let charCode = char.charCodeAt(0)
@@ -177,16 +178,20 @@
             // the char is letter
             if(bufferType === "num") {
               // flush the buffer into coefficient
-              coefficient = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+              coefficient = sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
               buffer = []
             }
             buffer.push(char)
             bufferType = "letter"
+          } else if(char === "+") {
+            // do nothing (should really do syntax validation here)
+          } else if(char === "=") {
+            sign = -1
           } else {
             // the char is a symbol (whitespace)
             if(bufferType === "num") {
               // add the constant
-              matrix.data[row][matrix.n-1] = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+              matrix.data[row][matrix.n-1] = -sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
             } else if(bufferType === "letter") {
               // add the coefficent
               let col = matrix.headers.indexOf(buffer.reduce((acc,s) => acc+s, ""))
@@ -227,9 +232,10 @@
     }
   }
 
-// TODO: add "=" signs
+// TODO: add "=" signs and enforce plus and equals signs
+//       check that syntax makes sense first...
 
-  Matrix.parseString("3x -7y 1.8z 3; -3x 4y 125z 2; 5x 7y 34z 3").toRREF().interpretMatrix()
+  Matrix.parseString("3x = 3").toRREF().interpretMatrix()
   console.log("done debugging") 
   
   </script>
