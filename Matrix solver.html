@@ -8,7 +8,10 @@
   
   class Matrix {
     constructor(m, n) {
-      this.data = new Array(m).fill(Array(n).fill(0))
+      this.data = new Array(m)
+      for(let i=0; i<this.data.length; i++) {
+        this.data[i] = new Array(n).fill(0)
+      }
       this.m = m
       this.n = n
     }
