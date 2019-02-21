@@ -7,13 +7,14 @@
   <script>
   
   class Matrix {
-    constructor(m, n) {
+    constructor(m, n, headers) {
       this.data = new Array(m)
       for(let i=0; i<this.data.length; i++) {
         this.data[i] = new Array(n).fill(0)
       }
       this.m = m
       this.n = n
+      this.headers = headers
     }
     swapRows = (a,b) => {
       let temp = this.data[a]
@@ -149,12 +150,11 @@
       })
       
       // create matrix with dimensions
-      let matrix = new Matrix(strs.length, varNames.length+1)
-      //matrix.headers = varNames
+      let matrix = new Matrix(strs.length, varNames.length+1, varNames)
       console.log("hold debugger")
 
-      let row = 0
       // find and insert values
+      let row = 0
       for(let i in strs) {
         let str = strs[i]
         str += " " // to ensure that the last term is parsed normally
@@ -200,7 +200,7 @@
               bufferType = ""
             } else if(bufferType === "letter") {
               // add the coefficent
-              let col = varNames.indexOf(buffer.reduce((acc,s) => acc+s, ""))
+              let col = matrix.headers.indexOf(buffer.reduce((acc,s) => acc+s, ""))
               matrix.data[row][col] = coefficient
               coefficient = 0
               buffer = []
