@@ -6,20 +6,19 @@
 <body>
   <script>
   
-  class Matrix {
-    constructor(m=false, n=false, data=false) {
-      if(data) {
-        this.data = data  // validate coloumn lengths?
-        this.m = data.length
-        this.n = data[0].length
-      } else {
-        this.data = new Array(n)
-        for(i in data) {
-          data[i] = new Array(m)
-        }
-        this.m = m
-        this.n = n
+  class Matrix {/*
+    constructor(data) {
+      this.data = data
+      this.m = data.length
+      this.n = data[0].length // validate all rows the same length?
+    }*/
+    constructor(m, n) {
+      this.data = new Array(m)
+      for(let i=0; i<this.data.length; i++) {
+        this.data[i] = new Array(n)
       }
+      this.m = m
+      this.n = n
     }
     swapRows = (a,b) => {
       let temp = this.data[a]
@@ -130,7 +129,7 @@
     //return strs
     
     // find variable names
-    let varNames = []
+    let varNamesArray = []
     // currently assuming that the string is a bunch of expressions (all equal to zero) seperated by semi-colons
     for(let i in strs) {
       let myStr = strs[i]
@@ -142,74 +141,91 @@
           j++
           myASCII = myStr.charCodeAt(j)
         }
-        varNames.push(currentVarName)
+        varNamesArray.push(currentVarName)
       }
     }
     //return varNames
 
-    // remove duplicate variable names
-    oldVarNames = varNames
-    varNames = []
-    for(let nameIndex in oldVarNames) {
-      let name = oldVarNames[nameIndex]
-      // check if name is already in varnames
-      isDuplicate = false
-      for(existingNameIndex in varNames) {
-        let existingName = varNames[existingNameIndex]
-        if(name.length === existingName.length) {
-          let mismatchFound = false
-          for(let i in name) {
-            if(name[i] !== existingName[i]) {
-              mismatchFound = true
-              break
-            }
-          }
-          if(!mismatchFound) {
-            isDuplicate = true
-            break
-          }
-        }
+    // remove duplicate variable names and make list of strings, not a list of lists of characters
+    let varNames = []
+    varNamesArray.forEach(varNameArray => {
+      let varName = varNameArray.reduce((acc,s) => acc+s, "")
+      if(!varNames.includes(varName) && varName !== "") {
+        varNames.push(varName)
       }
-      if(!isDuplicate) {
-        varNames.push(name)
-      }
-    }
-    return varNames
+    })
+    //return varNames
 
     // create matrix with dimensions
     let matrix = new Matrix(strs.length, varNames.length+1)
+    //matrix.headers = varNames
     console.log("hold debugger")
 
-    for(let str in strs.values()) {
-      let myNumBuffer = []
+    // init matrix to zeros? (or put this in the matrix constructor?)
+
+    row = 0
+    // find and insert values
+    for(let i in strs) {
+      let str = strs[i]
+      str += " " // to ensure that the last term is parsed normally
+      let buffer = [] // holds the latest characters
+      let bufferType = ""
+      let coefficient = 0
       for(let i in str) {
         let char = str[i]
         let charCode = char.charCodeAt(0)
         if(48 <= charCode && charCode <= 57) {
-          myNumBuffer.push(char)
-        } else if((97 <= charCode && charCdoe <= 122) || (65 <= charCode && charCode <= 90)) {
-          for(let myVar in varNames.values()) {
-            let mismatchFound = false
-            for(let j in myVar) {
-              if(str[i] !== myVar[j]) {
-                mismatchFound = true
-                break
-              }
-            }
-            if(!mismatchFound) {
-              // we found a variable
-            }
+          // the char is a number
+          if(bufferType === "") {
+            buffer.push(char)
+            bufferType = "num"
+          } else if(bufferType === "num") {
+            buffer.push(char)
+          } else if(bufferType === "letter") {
+            throw new Error("num right after letter")
+          }
+        } else if((97 <= charCode && charCode <= 122)
+          || (65 <= charCode && charCode <= 90)) {
+          // the char is letter
+          if(bufferType === "") {
+            buffer.push(char)
+            bufferType = "letter"
+          } else if(bufferType === "letter") {
+            buffer.push(char)
+          } else if(bufferType === "num") {
+            // flush the buffer into coefficient
+            coefficient = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+            buffer = []
+            buffer.push(char)
+            bufferType = "letter"
+          }
+        } else {
+          // the char is a symbol (whitespace)
+          if(bufferType === "") {
+            // do nothing
+          } else if(bufferType === "num") {
+            // add the constant
+            matrix.data[row][matrix.n-1] = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+            buffer = []
+            bufferType = ""
+          } else if(bufferType === "letter") {
+            // add the coefficent
+            let col = varNames.indexOf(buffer.reduce((acc,s) => acc+s, ""))
+            matrix.data[row][col] = coefficient
+            coefficient = 0
+            buffer = []
+            bufferType = ""
           }
         }
-        
       }
+      row += 1
     }
-    // for each equation
-    //   find each variable and identify its coefficient
-    //     add value to matrix
-
-    //matrix.toRREF
+    return matrix // .toRREF()
   }
+
+// TODO: add "-" and "=" signs
+
+  // note: ["m","y","V","a","r"].reduce((acc, s) => acc+s, "") -> "myVar"
 
 
   let matrix = new Matrix(2,2)
@@ -219,7 +235,7 @@
                                 [1,0,0,23,5,4,3],
                                 [2,0,3,0,34,2,-7.65]])
   //matrix.toRREF()
-  parseString("as l ;df ;lk sad;l ajsd;f")
+  parseString("3x 3;")
   console.log("debugging")
   
   </script>
