@@ -155,7 +155,6 @@
       
       // create matrix with dimensions
       let matrix = new Matrix(strs.length, varNames.length+1, varNames)
-      console.log("hold debugger")
 
       // find and insert values
       let row = 0
@@ -242,7 +241,6 @@
 // add up coefficients of the same variable?
 
   Matrix.parseString(prompt("Enter semi-colon seperated linear equations (e.g. '3x + -5.67y + 54.2345243z= 3; 3x = 56 + y'): ")).toRREF().interpretMatrix()
-  console.log("done debugging") 
   
   </script>
   
