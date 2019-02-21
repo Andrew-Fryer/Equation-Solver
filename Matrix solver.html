@@ -44,7 +44,7 @@
       }
     }
     addTo = (source, alpha, target) => {
-      if((alpha == 0) || (source == target && alpha == -1)) {
+      if(source == target && alpha == -1) {
         throw new Error("Losing data")
       }
       for(let i in this.data) {
