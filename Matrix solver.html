@@ -166,46 +166,34 @@
           let charCode = char.charCodeAt(0)
           if(48 <= charCode && charCode <= 57) {
             // the char is a number
-            if(bufferType === "") {
-              buffer.push(char)
-              bufferType = "num"
-            } else if(bufferType === "num") {
-              buffer.push(char)
-            } else if(bufferType === "letter") {
+            if(bufferType === "letter") {
               throw new Error("num right after letter")
             }
+            buffer.push(char)
+            bufferType = "num"
           } else if((97 <= charCode && charCode <= 122)
             || (65 <= charCode && charCode <= 90)) {
             // the char is letter
-            if(bufferType === "") {
-              buffer.push(char)
-              bufferType = "letter"
-            } else if(bufferType === "letter") {
-              buffer.push(char)
-            } else if(bufferType === "num") {
+            if(bufferType === "num") {
               // flush the buffer into coefficient
               coefficient = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
               buffer = []
-              buffer.push(char)
-              bufferType = "letter"
             }
+            buffer.push(char)
+            bufferType = "letter"
           } else {
             // the char is a symbol (whitespace)
-            if(bufferType === "") {
-              // do nothing
-            } else if(bufferType === "num") {
+            if(bufferType === "num") {
               // add the constant
               matrix.data[row][matrix.n-1] = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
-              buffer = []
-              bufferType = ""
             } else if(bufferType === "letter") {
               // add the coefficent
               let col = matrix.headers.indexOf(buffer.reduce((acc,s) => acc+s, ""))
               matrix.data[row][col] = coefficient
               coefficient = 0
-              buffer = []
-              bufferType = ""
             }
+            buffer = []
+            bufferType = ""
           }
         }
         row += 1
@@ -215,8 +203,6 @@
   }
 
 // TODO: add "-" and "=" signs
-
-  // note: ["m","y","V","a","r"].reduce((acc, s) => acc+s, "") -> "myVar"
 
   Matrix.parseString("3x 7y 3; 3x 4y 2") // .toRREF().interpretMatrix()
   console.log("done debugging")
