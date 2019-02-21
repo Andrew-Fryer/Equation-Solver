@@ -191,11 +191,11 @@
             // the char is a symbol (whitespace)
             if(bufferType === "num") {
               // add the constant
-              matrix.data[row][matrix.n-1] = -sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+              matrix.data[row][matrix.n-1] += -sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
             } else if(bufferType === "letter") {
               // add the coefficent
               let col = matrix.headers.indexOf(buffer.reduce((acc,s) => acc+s, ""))
-              matrix.data[row][col] = coefficient
+              matrix.data[row][col] += coefficient
               coefficient = 0
             }
             buffer = []
@@ -238,7 +238,6 @@
 
 // TODO: enforce plus and equals signs
 //       check that syntax makes sense first...
-// add up coefficients of the same variable?
 
   Matrix.parseString(prompt("Enter semi-colon seperated linear equations (e.g. '3x + -5.67y + 54.2345243z= 3; 3x = 56 + y'): ")).toRREF().interpretMatrix()
   
