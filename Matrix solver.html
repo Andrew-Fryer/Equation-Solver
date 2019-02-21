@@ -6,12 +6,7 @@
 <body>
   <script>
   
-  class Matrix {/*
-    constructor(data) {
-      this.data = data
-      this.m = data.length
-      this.n = data[0].length // validate all rows the same length?
-    }*/
+  class Matrix {
     constructor(m, n) {
       this.data = new Array(m).fill(Array(n).fill(0))
       this.m = m
@@ -122,7 +117,6 @@
         str = str.slice(index+1)  // +1 for the char ';'
         index = str.search(";")
       }
-      //return strs
       
       // find variable names
       let varNamesArray = []
@@ -140,7 +134,6 @@
           varNamesArray.push(currentVarName)
         }
       }
-      //return varNames
 
       // remove duplicate variable names and make list of strings, not a list of lists of characters
       let varNames = []
@@ -150,20 +143,17 @@
           varNames.push(varName)
         }
       })
-      //return varNames
-
+      
       // create matrix with dimensions
       let matrix = new Matrix(strs.length, varNames.length+1)
       //matrix.headers = varNames
       console.log("hold debugger")
 
-      // init matrix to zeros? (or put this in the matrix constructor?)
-
       let row = 0
       // find and insert values
       for(let i in strs) {
         let str = strs[i]
-        str += " " // to ensure that the last term is parsed normally
+        str += "; " // to ensure that the last term is parsed normally
         let buffer = [] // holds the latest characters
         let bufferType = ""
         let coefficient = 0
