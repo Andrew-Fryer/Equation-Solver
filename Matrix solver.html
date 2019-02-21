@@ -78,6 +78,7 @@
           }
         }
       }
+      return this
     }
     deleteAllZeroCols = () => {
       for(let col=0; col<this.n; col ++) {
@@ -200,11 +201,33 @@
       }
       return matrix
     }
+
+// TODO: add in equals signs, don't print variables with coefficients of zero,
+//   and then parameterize independent variables and print all variables in terms of the parameterized variables
+    interpretMatrix = () => {
+      //let output = []
+      for(let rowIndex in this.data) {
+        let row = this.data[rowIndex]
+        let outputForCurrentRow = ""
+        for(let colIndex in this.data[rowIndex]) {
+          let val = this.data[rowIndex][colIndex]
+          if(colIndex < this.n-1) { // if not a constant
+            if(val !== 0) { // only print a variable if the coefficient is non-zero
+              let varName = this.headers[colIndex]
+              outputForCurrentRow += (val!==1 ? val.toString() : "") + varName + " "
+            }
+          } else {
+            outputForCurrentRow += "= " + val.toString()
+          }
+        }
+        console.log(outputForCurrentRow)
+      }
+    }
   }
 
 // TODO: add "-" and "=" signs
 
-  Matrix.parseString("3x 7y 3; 3x 4y 2") // .toRREF().interpretMatrix()
+  Matrix.parseString("3x 7y 3; 3x 4y 2").toRREF().interpretMatrix()
   console.log("done debugging")
   
   </script>
