@@ -13,10 +13,7 @@
       this.n = data[0].length // validate all rows the same length?
     }*/
     constructor(m, n) {
-      this.data = new Array(m)
-      for(let i=0; i<this.data.length; i++) {
-        this.data[i] = new Array(n)
-      }
+      this.data = new Array(m).fill(Array(n).fill(0))
       this.m = m
       this.n = n
     }
@@ -115,128 +112,120 @@
         }
       }
     }
-  }
 
-  parseString = (str) => {
-    let strs = []
-    // first divide into equations
-    let index = str.search(";")
-    while(index !== -1) {
-      strs.push(str.slice(0,index))
-      str = str.slice(index+1)  // +1 for the char ';'
-      index = str.search(";")
-    }
-    //return strs
-    
-    // find variable names
-    let varNamesArray = []
-    // currently assuming that the string is a bunch of expressions (all equal to zero) seperated by semi-colons
-    for(let i in strs) {
-      let myStr = strs[i]
-      for(let j=0; j<myStr.length; j++) {
-        let currentVarName = []
-        let myASCII = myStr.charCodeAt(j)
-        while((65<=myASCII && myASCII<=90) || (97<=myASCII && myASCII<=122)) {
-          currentVarName.push(myStr[j])
-          j++
-          myASCII = myStr.charCodeAt(j)
-        }
-        varNamesArray.push(currentVarName)
+    static parseString = (str) => {
+      let strs = []
+      // first divide into equations
+      let index = str.search(";")
+      while(index !== -1) {
+        strs.push(str.slice(0,index))
+        str = str.slice(index+1)  // +1 for the char ';'
+        index = str.search(";")
       }
-    }
-    //return varNames
-
-    // remove duplicate variable names and make list of strings, not a list of lists of characters
-    let varNames = []
-    varNamesArray.forEach(varNameArray => {
-      let varName = varNameArray.reduce((acc,s) => acc+s, "")
-      if(!varNames.includes(varName) && varName !== "") {
-        varNames.push(varName)
-      }
-    })
-    //return varNames
-
-    // create matrix with dimensions
-    let matrix = new Matrix(strs.length, varNames.length+1)
-    //matrix.headers = varNames
-    console.log("hold debugger")
-
-    // init matrix to zeros? (or put this in the matrix constructor?)
-
-    row = 0
-    // find and insert values
-    for(let i in strs) {
-      let str = strs[i]
-      str += " " // to ensure that the last term is parsed normally
-      let buffer = [] // holds the latest characters
-      let bufferType = ""
-      let coefficient = 0
-      for(let i in str) {
-        let char = str[i]
-        let charCode = char.charCodeAt(0)
-        if(48 <= charCode && charCode <= 57) {
-          // the char is a number
-          if(bufferType === "") {
-            buffer.push(char)
-            bufferType = "num"
-          } else if(bufferType === "num") {
-            buffer.push(char)
-          } else if(bufferType === "letter") {
-            throw new Error("num right after letter")
+      //return strs
+      
+      // find variable names
+      let varNamesArray = []
+      // currently assuming that the string is a bunch of expressions (all equal to zero) seperated by semi-colons
+      for(let i in strs) {
+        let myStr = strs[i]
+        for(let j=0; j<myStr.length; j++) {
+          let currentVarName = []
+          let myASCII = myStr.charCodeAt(j)
+          while((65<=myASCII && myASCII<=90) || (97<=myASCII && myASCII<=122)) {
+            currentVarName.push(myStr[j])
+            j++
+            myASCII = myStr.charCodeAt(j)
           }
-        } else if((97 <= charCode && charCode <= 122)
-          || (65 <= charCode && charCode <= 90)) {
-          // the char is letter
-          if(bufferType === "") {
-            buffer.push(char)
-            bufferType = "letter"
-          } else if(bufferType === "letter") {
-            buffer.push(char)
-          } else if(bufferType === "num") {
-            // flush the buffer into coefficient
-            coefficient = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
-            buffer = []
-            buffer.push(char)
-            bufferType = "letter"
-          }
-        } else {
-          // the char is a symbol (whitespace)
-          if(bufferType === "") {
-            // do nothing
-          } else if(bufferType === "num") {
-            // add the constant
-            matrix.data[row][matrix.n-1] = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
-            buffer = []
-            bufferType = ""
-          } else if(bufferType === "letter") {
-            // add the coefficent
-            let col = varNames.indexOf(buffer.reduce((acc,s) => acc+s, ""))
-            matrix.data[row][col] = coefficient
-            coefficient = 0
-            buffer = []
-            bufferType = ""
-          }
+          varNamesArray.push(currentVarName)
         }
       }
-      row += 1
+      //return varNames
+
+      // remove duplicate variable names and make list of strings, not a list of lists of characters
+      let varNames = []
+      varNamesArray.forEach(varNameArray => {
+        let varName = varNameArray.reduce((acc,s) => acc+s, "")
+        if(!varNames.includes(varName) && varName !== "") {
+          varNames.push(varName)
+        }
+      })
+      //return varNames
+
+      // create matrix with dimensions
+      let matrix = new Matrix(strs.length, varNames.length+1)
+      //matrix.headers = varNames
+      console.log("hold debugger")
+
+      // init matrix to zeros? (or put this in the matrix constructor?)
+
+      let row = 0
+      // find and insert values
+      for(let i in strs) {
+        let str = strs[i]
+        str += " " // to ensure that the last term is parsed normally
+        let buffer = [] // holds the latest characters
+        let bufferType = ""
+        let coefficient = 0
+        for(let i in str) {
+          let char = str[i]
+          let charCode = char.charCodeAt(0)
+          if(48 <= charCode && charCode <= 57) {
+            // the char is a number
+            if(bufferType === "") {
+              buffer.push(char)
+              bufferType = "num"
+            } else if(bufferType === "num") {
+              buffer.push(char)
+            } else if(bufferType === "letter") {
+              throw new Error("num right after letter")
+            }
+          } else if((97 <= charCode && charCode <= 122)
+            || (65 <= charCode && charCode <= 90)) {
+            // the char is letter
+            if(bufferType === "") {
+              buffer.push(char)
+              bufferType = "letter"
+            } else if(bufferType === "letter") {
+              buffer.push(char)
+            } else if(bufferType === "num") {
+              // flush the buffer into coefficient
+              coefficient = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+              buffer = []
+              buffer.push(char)
+              bufferType = "letter"
+            }
+          } else {
+            // the char is a symbol (whitespace)
+            if(bufferType === "") {
+              // do nothing
+            } else if(bufferType === "num") {
+              // add the constant
+              matrix.data[row][matrix.n-1] = parseFloat(buffer.reduce((acc,s) => acc+s, ""))
+              buffer = []
+              bufferType = ""
+            } else if(bufferType === "letter") {
+              // add the coefficent
+              let col = varNames.indexOf(buffer.reduce((acc,s) => acc+s, ""))
+              matrix.data[row][col] = coefficient
+              coefficient = 0
+              buffer = []
+              bufferType = ""
+            }
+          }
+        }
+        row += 1
+      }
+      return matrix
     }
-    return matrix // .toRREF()
   }
 
 // TODO: add "-" and "=" signs
 
   // note: ["m","y","V","a","r"].reduce((acc, s) => acc+s, "") -> "myVar"
 
-
-  let matrix = new Matrix(2,2)
-  console.log(matrix)
-  matrix = new Matrix(3,7,data=[[1,2,7,87,0,2,34],
-                                [3,4,4,23,0,0,23],
-                                [1,0,0,23,5,4,3],
-                                [2,0,3,0,34,2,-7.65]])
-  //matrix.toRREF()
-  parseString("3x 3;")
-  console.log("debugging")
+  Matrix.parseString("3x 7y 3; 3x 4y 2;") // .toRREF().interpretMatrix()
+  console.log("done debugging")
   
   </script>
   
