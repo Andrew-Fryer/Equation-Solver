@@ -180,6 +180,8 @@
               // flush the buffer into coefficient
               coefficient = sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
               buffer = []
+            } else if(bufferType === "") {
+              coefficient = sign * 1
             }
             buffer.push(char)
             bufferType = "letter"
@@ -232,10 +234,10 @@
     }
   }
 
-// TODO: add "=" signs and enforce plus and equals signs
+// TODO: enforce plus and equals signs
 //       check that syntax makes sense first...
 
-  Matrix.parseString("3x = 3").toRREF().interpretMatrix()
+  Matrix.parseString("3x + -5.67y + 54.2345243z= 3; 3x = 56 + y").toRREF().interpretMatrix()
   console.log("done debugging") 
   
   </script>
