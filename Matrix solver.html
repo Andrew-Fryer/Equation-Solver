@@ -22,7 +22,7 @@
       data[b] = temp
     }
     swapCols = (a,b) => {
-      if(a == this.data.length-1 || b == this.data.length-1) {
+      if(a == this.n-1 || b == this.n-1) {
         throw new Error("cannot swap constants row")
       }
       for(let i in this.data) {
@@ -31,6 +31,9 @@
         myData[a] = myData[b]
         myData[b] = temp
       }
+      let temp = this.headers[a]
+      this.headers[a] = this.headers[b]
+      this.headers[b] = temp
     }
     scaleBy = (row, alpha) => {
       if(alpha == 0) {
@@ -185,12 +188,12 @@
             }
             buffer.push(char)
             bufferType = "letter"
-          } else if(char === "+") {
-            // do nothing (should really do syntax validation here)
-          } else if(char === "=") {
-            sign = -1
           } else {
             // the char is a symbol (whitespace)
+            if(char === "=") {
+              sign = -1
+            }
+
             if(bufferType === "num") {
               // add the constant
               matrix.data[row][matrix.n-1] = -sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
@@ -236,8 +239,9 @@
 
 // TODO: enforce plus and equals signs
 //       check that syntax makes sense first...
+// add up coefficients of the same variable?
 
-  Matrix.parseString("3x + -5.67y + 54.2345243z= 3; 3x = 56 + y").toRREF().interpretMatrix()
+  Matrix.parseString(prompt("Enter semi-colon seperated linear equations (e.g. '3x + -5.67y + 54.2345243z= 3; 3x = 56 + y'): ")).toRREF().interpretMatrix()
   console.log("done debugging") 
   
   </script>
