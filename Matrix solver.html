@@ -47,7 +47,7 @@
       if(source == target && alpha == -1) {
         throw new Error("Losing data")
       }
-      for(let i in this.data) {
+      for(let i=0; i<this.n; i++) {
         this.data[target][i] += alpha * this.data[source][i]
       }
     }
@@ -189,10 +189,6 @@
             bufferType = "letter"
           } else {
             // the char is a symbol (whitespace)
-            if(char === "=") {
-              sign = -1
-            }
-
             if(bufferType === "num") {
               // add the constant
               matrix.data[row][matrix.n-1] = -sign * parseFloat(buffer.reduce((acc,s) => acc+s, ""))
@@ -204,6 +200,10 @@
             }
             buffer = []
             bufferType = ""
+            
+            if(char === "=") {
+              sign = -1
+            }
           }
         }
         row += 1
