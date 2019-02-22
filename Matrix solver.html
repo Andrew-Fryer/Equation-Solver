@@ -4,11 +4,26 @@
   <title>Matrix solver</title>
 </head>
 <body>
-  <h4>Input</h4>
-  <textarea id="input"></textarea>
-  <button onclick="" => </button> >Compute</button>
-  <h4>Output</h4>
-  <textarea id="output"></textarea>
+  
+  <form oninput="solution.value = Matrix.parseString(equations.value).toRREF().interpretMatrix()">
+    <input type="text" id="equations"
+      style="width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;">
+    <output name="solution" for="equations"
+      style="width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;"></output>
+  </form>
+
   <script>
   
   class Matrix {
@@ -134,7 +149,6 @@
       
       // find variable names
       let varNamesArray = []
-      // currently assuming that the string is a bunch of expressions (all equal to zero) seperated by semi-colons
       for(let i in strs) {
         let myStr = strs[i]
         for(let j=0; j<myStr.length; j++) {
@@ -218,7 +232,7 @@
 
 // TODO: parameterize independent variables and print all variables in terms of the parameterized variables
     interpretMatrix = () => {
-      //let output = []
+      let output = ""
       for(let rowIndex in this.data) {
         let row = this.data[rowIndex]
         let outputForCurrentRow = ""
@@ -236,9 +250,14 @@
             outputForCurrentRow += "= " + val.toString()
           }
         }
-        console.log(outputForCurrentRow)
+        output += outputForCurrentRow + "; "
       }
+      return output
     }
+  }
+
+  compute = () => {
+    let 
   }
 
 // TODO: enforce plus and equals signs
@@ -246,9 +265,6 @@
 
   //Matrix.parseString(prompt("Enter semi-colon seperated linear equations (e.g. '3x + -5.67y + 54.2345243z= 3; 3x = 56 + y'): ")).toRREF().interpretMatrix()
   
-  function compute() {
-    let 
-  }
   </script>
   
 </body>
