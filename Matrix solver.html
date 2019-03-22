@@ -36,6 +36,20 @@
       this.n = n
       this.headers = headers
     }
+    // takes in 2 matrices
+    multiply = (a,b) => {
+      let result = new Matrix(a.m, b.n);
+      for(let row=0; row<result.m; row++) {
+        for(let col=0; col<result.n; col++) {
+          let dotProduct = 0;
+          for(let term=0; term<a.n; term++) {
+            dotProduct += a.data[row][term] * b.data[term][col];
+          }
+          result.data[row][col] = dotProduct;
+        }
+      }
+      return result;
+    }
     swapRows = (a,b) => {
       let temp = this.data[a]
       data[a] = data[b]
